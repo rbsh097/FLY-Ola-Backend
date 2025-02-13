@@ -26,7 +26,7 @@ const CustomerBookingSchema = new mongoose.Schema({
       weight: { type: Number, required: true },
     },
   ],
-  // Optionally, include flight slot details (if needed)
+
   selectedFlight: { type: Object },
   selectedFlightOutbound: { type: Object },
   selectedFlightReturn: { type: Object },
