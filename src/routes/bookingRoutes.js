@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const Booking = require("../models/Booking");
 
+const CustomerBooking = require("../models/CustumerBooking"); 
 // Create a new flight slot (admin only)
 router.post("/", async (req, res) => {
   try {
@@ -39,11 +40,22 @@ router.get("/:id", async (req, res) => {
 // Delete flight slot by ID
 router.delete("/:id", async (req, res) => {
   try {
-    const booking = await Booking.findByIdAndDelete(req.params.id);
-    if (!booking) {
-      return res.status(404).json({ message: "Booking not found" });
+    const bookingSlot = await Booking.findByIdAndDelete(req.params.id);
+    if (!bookingSlot) {
+      return res.status(404).json({ message: "Booking slot not found" });
     }
-    res.json({ message: "Booking deleted" });
+    // Delete any customer bookings referencing this flight slot
+    await CustomerBooking.deleteMany({
+      $or: [
+        { "selectedFlight._id": req.params.id },
+        { "selectedFlightOutbound._id": req.params.id },
+        { "selectedFlightReturn._id": req.params.id },
+      ],
+    });
+    res.json({
+      message:
+        "Booking slot and all associated customer bookings have been deleted",
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }

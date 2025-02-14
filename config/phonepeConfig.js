@@ -12,10 +12,8 @@ function getPhonePeConfig() {
     const hostUrl = process.env.PHONEPE_PROD_HOST;
 
     let apiKeyValue = '';
-    // Option A: read from file
     const apiKeyFilePath = process.env.PHONEPE_PROD_API_KEY_FILE;
     if (apiKeyFilePath && fs.existsSync(apiKeyFilePath)) {
-      // The JSON might contain { "key": "..." } or something similar
       const fileData = JSON.parse(fs.readFileSync(apiKeyFilePath, 'utf8'));
       apiKeyValue = fileData.key || '';
     }

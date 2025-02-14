@@ -1,3 +1,4 @@
+// models/CustomerBooking.js
 const mongoose = require('mongoose');
 
 const CustomerBookingSchema = new mongoose.Schema({
@@ -6,30 +7,34 @@ const CustomerBookingSchema = new mongoose.Schema({
     enum: ['oneWay', 'roundTrip'],
     required: true,
   },
-  from: { type: String },
-  to: { type: String },
-  departureDate: { type: String }, // e.g., "2025-02-12"
-  returnDate: { type: String }, // optional for one-way bookings
+  from: { type: String, required: true },
+  to: { type: String, required: true },
+  departureDate: { type: String, required: true },
+  returnDate: { type: String }, // required only if tripType === 'roundTrip'?
   packageOption: { type: String },
-  passengers: { type: Number  },
-  baseFare: { type: Number },
-  overweightFees: { type: Number },
-  finalTotal: { type: Number },
+  passengers: { type: Number, required: true },
+  baseFare: { type: Number, required: true },
+  overweightFees: { type: Number, default: 0 },
+  finalTotal: { type: Number, required: true },
+
   passengerDetails: [
     {
-      name: { type: String },
-      age: { type: Number},
-      gender: { type: String },
-      email: { type: String },
-      mobile: { type: String },
-      nationality: { type: String },
-      weight: { type: Number },
+      name: { type: String, required: true },
+      age: { type: Number, required: true },
+      gender: { type: String, required: true },
+      email: { type: String, required: true },
+      mobile: { type: String, required: true },
+      nationality: { type: String, required: true },
+      weight: { type: Number, required: true },
+      identityCardType: { type: String, required: true },
+      identityCardImageUrl: { type: String, required: true },
     },
   ],
 
   selectedFlight: { type: Object },
   selectedFlightOutbound: { type: Object },
   selectedFlightReturn: { type: Object },
+
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -9,6 +9,8 @@ const Booking = require('./../models/Booking');
 
 // Load environment
 require('dotenv').config();
+// Ensure that there's no stray text here
+
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
 
 // 1) Initiate Payment
@@ -81,8 +83,9 @@ exports.initiatePayment = async (req, res) => {
                        .digest('hex');
     const xVerify = `${apiKeyIndex}|${hmac}`;
 
-    // (D) Call PhonePe initiate API
-    // The path might differ. Example: `${hostUrl}/initiatePayment` or `/pg/v1/pay`.
+    console.log("Request Body:", requestBody);
+    console.log("X-VERIFY Header:", xVerify);
+
     const phonepeUrl = `${hostUrl}/initiatePayment`;
     const phonePeResponse = await axios.post(phonepeUrl, requestBody, {
       headers: {
