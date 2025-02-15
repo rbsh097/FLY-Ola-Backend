@@ -10,7 +10,7 @@ const CustomerBookingSchema = new mongoose.Schema({
   from: { type: String, required: true },
   to: { type: String, required: true },
   departureDate: { type: String, required: true },
-  returnDate: { type: String }, // required only if tripType === 'roundTrip'?
+  returnDate: { type: String }, 
   packageOption: { type: String },
   passengers: { type: Number, required: true },
   baseFare: { type: Number, required: true },

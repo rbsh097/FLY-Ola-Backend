@@ -4,17 +4,17 @@ const router = express.Router();
 const Booking = require("../models/Booking");
 
 const CustomerBooking = require("../models/CustumerBooking"); 
-// Create a new flight slot (admin only)
+
 router.post("/", async (req, res) => {
   try {
-    const booking = await Booking.create(req.body); // seatsAvailable must be set
+    const booking = await Booking.create(req.body); 
     res.status(201).json({ message: "Booking (flight slot) created", booking });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// GET all flight slots
+
 router.get("/", async (req, res) => {
   try {
     const bookings = await Booking.find().sort({ createdAt: -1 });
@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get flight slot by ID
+
 router.get("/:id", async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id);
@@ -37,7 +37,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Delete flight slot by ID
+
 router.delete("/:id", async (req, res) => {
   try {
     const bookingSlot = await Booking.findByIdAndDelete(req.params.id);
