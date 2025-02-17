@@ -1,4 +1,3 @@
-// backend/controllers/bookingController.js
 const ChartedBooking = require("../models/ChartedBookingModel");
 
 // Base price map (in Lacs) for Round Trip from each city
@@ -64,9 +63,8 @@ function calculateCost(booking) {
 }
 
 // @desc    Create a new booking
-// @route   POST /api/bookings
+// @route   POST /api/charted-bookings
 // @access  Public
-
 exports.createBooking = async (req, res) => {
   try {
     const {
@@ -80,8 +78,6 @@ exports.createBooking = async (req, res) => {
       noOfPax,
     } = req.body;
 
-    // Build the booking object
-    // Rename 'Booking' to 'ChartedBooking'
     const newBooking = new ChartedBooking({
       tripType,
       name,
@@ -93,10 +89,8 @@ exports.createBooking = async (req, res) => {
       noOfPax,
     });
 
-    // Calculate cost (if you keep that function, that’s fine)
     newBooking.cost = calculateCost(newBooking);
 
-    // Save to DB
     const savedBooking = await newBooking.save();
     return res.status(201).json(savedBooking);
   } catch (error) {
@@ -105,8 +99,9 @@ exports.createBooking = async (req, res) => {
   }
 };
 
-// ...
-// Now use 'ChartedBooking' instead of 'Booking'
+// @desc    Get all bookings
+// @route   GET /api/charted-bookings
+// @access  Public
 exports.getAllBookings = async (req, res) => {
   try {
     const bookings = await ChartedBooking.find();
@@ -117,6 +112,9 @@ exports.getAllBookings = async (req, res) => {
   }
 };
 
+// @desc    Get a single booking by ID
+// @route   GET /api/charted-bookings/:id
+// @access  Public
 exports.getBookingById = async (req, res) => {
   try {
     const booking = await ChartedBooking.findById(req.params.id);
@@ -130,6 +128,9 @@ exports.getBookingById = async (req, res) => {
   }
 };
 
+// @desc    Delete a booking by ID
+// @route   DELETE /api/charted-bookings/:id
+// @access  Public
 exports.deleteBookingById = async (req, res) => {
   try {
     const booking = await ChartedBooking.findByIdAndDelete(req.params.id);
@@ -137,6 +138,25 @@ exports.deleteBookingById = async (req, res) => {
       return res.status(404).json({ message: "Booking not found" });
     }
     res.json({ message: "Booking deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// @desc    Confirm a booking by ID
+// @route   PATCH /api/charted-bookings/:id/confirm
+// @access  Public
+exports.confirmBooking = async (req, res) => {
+  try {
+    const { confirmed } = req.body;
+    const booking = await ChartedBooking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+    booking.confirmed = confirmed;
+    const updatedBooking = await booking.save();
+    res.json(updatedBooking);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
