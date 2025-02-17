@@ -35,6 +35,10 @@ const BookingSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  vvipExclusive: { // New field for VVIP exclusive bookings
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

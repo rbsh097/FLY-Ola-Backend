@@ -10,13 +10,12 @@ const CustomerBookingSchema = new mongoose.Schema({
   from: { type: String, required: true },
   to: { type: String, required: true },
   departureDate: { type: String, required: true },
-  returnDate: { type: String }, 
+  returnDate: { type: String },
   packageOption: { type: String },
   passengers: { type: Number, required: true },
   baseFare: { type: Number, required: true },
   overweightFees: { type: Number, default: 0 },
   finalTotal: { type: Number, required: true },
-
   passengerDetails: [
     {
       name: { type: String, required: true },
@@ -30,11 +29,10 @@ const CustomerBookingSchema = new mongoose.Schema({
       identityCardImageUrl: { type: String, required: true },
     },
   ],
-
   selectedFlight: { type: Object },
   selectedFlightOutbound: { type: Object },
   selectedFlightReturn: { type: Object },
-
+  vvipExclusive: { type: Boolean, default: false }, // Add vvipExclusive field
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -1,4 +1,3 @@
-// src/routes/customerBookingRoutes.js
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
@@ -8,13 +7,10 @@ const Booking = require('../models/Booking'); // Flight slot model
 
 // POST: Create a new customer booking
 router.post('/', async (req, res) => {
-  // Start a session for transactional updates
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    // 1. Basic Manual Validation
-    // (Adjust these checks as needed for your application's logic.)
     const {
       tripType,
       from,
@@ -29,7 +25,12 @@ router.post('/', async (req, res) => {
       selectedFlight,
       selectedFlightOutbound,
       selectedFlightReturn,
+      vvipExclusive = false, // Default to false if not provided
     } = req.body;
+
+    // Log incoming request data for debugging
+    console.log('Received booking data:', req.body);
+    console.log('vvipExclusive:', vvipExclusive);
 
     // Check required top-level fields
     if (!tripType || !from || !to || !departureDate || !passengers || !baseFare || !finalTotal) {
@@ -52,12 +53,11 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // 2. Update Flight Seats (as before)
+    // Update Flight Seats
     console.log(`Processing booking for ${passengers} passengers.`);
 
     if (tripType === 'roundTrip') {
       if (selectedFlightOutbound?._id && selectedFlightReturn?._id) {
-        // If both flights are the same document, update once.
         if (selectedFlightOutbound._id === selectedFlightReturn._id) {
           const flightDoc = await Booking.findById(selectedFlightOutbound._id).session(session);
           console.log(`Single flight seats before: ${flightDoc.seatsAvailable}`);
@@ -86,12 +86,16 @@ router.post('/', async (req, res) => {
       await flightDoc.save({ session });
     }
 
-    // 3. Create the Customer Booking record
-    //    This will trigger Mongoose schema validation. If any required field
-    //    is missing or invalid, a ValidationError is thrown.
-    const customerBooking = await CustomerBooking.create([req.body], { session });
+    // Create the Customer Booking record
+    const customerBooking = await CustomerBooking.create(
+      [{ ...req.body, vvipExclusive }], // Ensure vvipExclusive is included
+      { session }
+    );
 
-    // 4. Commit transaction & end session
+    // Log the saved booking for debugging
+    console.log('Saved booking:', customerBooking[0]);
+
+    // Commit transaction & end session
     await session.commitTransaction();
     session.endSession();
 
@@ -100,7 +104,6 @@ router.post('/', async (req, res) => {
     await session.abortTransaction();
     session.endSession();
 
-    // If it's a Mongoose validation error, respond with 422
     if (error.name === 'ValidationError') {
       return res.status(422).json({
         message: 'Validation failed. Check required fields or schema rules.',
@@ -108,25 +111,33 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Otherwise, return a generic 500
     console.error('Error processing booking:', error);
     res.status(500).json({ message: 'Error processing booking', error: error.message });
   }
 });
 
-
-// GET: All customer bookings (optional)
+// GET: All customer bookings with optional filtering by vvipExclusive
 router.get('/', async (req, res) => {
   try {
-    const bookings = await CustomerBooking.find().sort({ createdAt: -1 });
+    const { vvipExclusive } = req.query; // Get the vvipExclusive query parameter
+    let filter = {};
+    if (vvipExclusive !== undefined) {
+      if (vvipExclusive === 'true') {
+        // Fetch only VVIP bookings
+        filter.vvipExclusive = true;
+      } else if (vvipExclusive === 'false') {
+        // Fetch non-VVIP bookings, including legacy bookings (where vvipExclusive is undefined)
+        filter.vvipExclusive = { $ne: true };
+      }
+    }
+    const bookings = await CustomerBooking.find(filter).sort({ createdAt: -1 });
     res.json({ bookings });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-
-
+// DELETE: Delete a customer booking
 router.delete('/:id', async (req, res) => {
   try {
     const booking = await CustomerBooking.findByIdAndDelete(req.params.id);
@@ -138,6 +149,5 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 
 module.exports = router;

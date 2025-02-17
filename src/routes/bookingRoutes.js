@@ -2,7 +2,6 @@
 const express = require("express");
 const router = express.Router();
 const Booking = require("../models/Booking");
-
 const CustomerBooking = require("../models/CustumerBooking"); 
 
 router.post("/", async (req, res) => {
@@ -14,16 +13,25 @@ router.post("/", async (req, res) => {
   }
 });
 
-
 router.get("/", async (req, res) => {
   try {
-    const bookings = await Booking.find().sort({ createdAt: -1 });
+    const { vvipExclusive } = req.query; // Get the vvipExclusive query parameter
+    let filter = {};
+    if (vvipExclusive !== undefined) {
+      if (vvipExclusive === 'true') {
+        // Fetch only VVIP bookings
+        filter.vvipExclusive = true;
+      } else if (vvipExclusive === 'false') {
+        // Fetch non-VVIP bookings, including legacy bookings (where vvipExclusive is undefined)
+        filter.vvipExclusive = { $ne: true };
+      }
+    }
+    const bookings = await Booking.find(filter).sort({ createdAt: -1 });
     res.json({ bookings });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
-
 
 router.get("/:id", async (req, res) => {
   try {
@@ -36,7 +44,6 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
-
 
 router.delete("/:id", async (req, res) => {
   try {
