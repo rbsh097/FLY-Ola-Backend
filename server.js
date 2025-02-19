@@ -34,7 +34,7 @@ const adminRoutes = require("./src/routes/adminRoutes");
 const bookingRoutes = require("./src/routes/bookingRoutes");
 const customerBookingRoutes = require("./src/routes/customerBookingRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
-const ChartedBookingRoutes = require("./src/routes/ChartedBookingRoutes"); 
+const ChartedBookingRoutes = require("./src/routes/ChartedbookingRoutes"); 
 // Use routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/bookings", bookingRoutes);
