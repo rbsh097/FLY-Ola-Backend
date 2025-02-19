@@ -12,7 +12,7 @@ require("./config/db")(); // Connect DB
 
 const app = express();
 
-// Middleware
+
 app.use(helmet());
 const allowedOrigins = ['https://kumbh.flyola.in'];
 

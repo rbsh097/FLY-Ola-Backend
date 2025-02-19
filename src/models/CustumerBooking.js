@@ -32,7 +32,10 @@ const CustomerBookingSchema = new mongoose.Schema({
   selectedFlight: { type: Object },
   selectedFlightOutbound: { type: Object },
   selectedFlightReturn: { type: Object },
-  vvipExclusive: { type: Boolean, default: false }, // Add vvipExclusive field
+  vvipExclusive: { type: Boolean, default: false },
+  // New Payment Fields:
+  paymentTransactionId: { type: String },
+  paymentScreenshotUrl: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 

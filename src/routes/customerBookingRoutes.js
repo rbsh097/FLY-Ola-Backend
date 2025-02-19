@@ -11,6 +11,7 @@ router.post('/', async (req, res) => {
   session.startTransaction();
 
   try {
+    // Destructure all fields from req.body, including the new ones.
     const {
       tripType,
       from,
@@ -25,7 +26,9 @@ router.post('/', async (req, res) => {
       selectedFlight,
       selectedFlightOutbound,
       selectedFlightReturn,
-      vvipExclusive = false, // Default to false if not provided
+      vvipExclusive = false,
+      paymentTransactionId,    // new field
+      paymentScreenshotUrl,    // new field
     } = req.body;
 
     // Log incoming request data for debugging
@@ -86,13 +89,13 @@ router.post('/', async (req, res) => {
       await flightDoc.save({ session });
     }
 
-    // Create the Customer Booking record
+    // Create the Customer Booking record.
+    // Note: The req.body already contains the new payment fields.
     const customerBooking = await CustomerBooking.create(
-      [{ ...req.body, vvipExclusive }], // Ensure vvipExclusive is included
+      [{ ...req.body, vvipExclusive }],
       { session }
     );
 
-    // Log the saved booking for debugging
     console.log('Saved booking:', customerBooking[0]);
 
     // Commit transaction & end session
